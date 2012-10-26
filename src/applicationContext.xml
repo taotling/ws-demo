@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-2.5.xsd
+http://www.springframework.org/schema/aop 
+http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="configLocation" value="classpath:hibernate.cfg.xml" />
+	</bean>
+	
+	<!-- 定义事务管理器（声明式的事务） -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	
+	<!-- 配置userDAO -->
+	<!-- 
+	<bean id="userDAO" class="com.baiing.jersey.demo.dao.UserDAOMongoDBImpl">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	-->
+	<bean id="mongoBean" class="com.mongodb.Mongo"/>
+	<bean id="userDAO" class="com.baiing.jersey.demo.dao.UserDAOMongoDBImpl">
+		<property name="mongo" ref="mongoBean" />
+		<property name="mongo" ref="mongoBean" />
+		<property name="collection" ref="mongoBean" />
+	</bean>
+	
+	<bean id="userServiceTarget" class="com.pakko.bus.service.user.UserService">
+		<property name="userDAO" ref="userDAO" />
+	</bean>
+	
+	<bean id="userService"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactor
+yBean">
+		<!-- 配置事务管理器 -->
+		<property name="transactionManager" ref="transactionManager" />
+		<property name="target" ref="userServiceTarget" />
+		<property name="proxyTargetClass" value="True" />
+		<!-- 配置事务属性 -->
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
